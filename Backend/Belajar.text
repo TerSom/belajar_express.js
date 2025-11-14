@@ -1,0 +1,81 @@
+import express from "express"
+
+const app = express()
+const port = 5050
+app.use(express.json())
+
+let dataDummy = [
+    {
+        id : 1,
+        name : "terry",
+        umur : 17
+    },
+    {
+        id : 2,
+        name : "terry",
+        umur : 17
+    },
+    {
+        id : 3,
+        name : "terry",
+        umur : 17
+    },
+    {
+        id : 4,
+        name : "terry",
+        umur : 17
+    }
+]
+
+// MENGGUNAKAN METHOD GET
+app.get("/user", (req,res) => {
+    res.status(200).json({msg : "succes",  data : dataDummy})
+})
+
+// MENGGUNAKAN METHOD POST
+app.post("/user", (req,res) => {
+    const {name} = req.body
+    dataDummy.push({
+        id : dataDummy.length + 1,
+        name
+    })
+    res.status(201).json({
+        msg : "User Create",
+        data : dataDummy.at(-1)
+    })
+})
+
+// MENGGUNAKAN METHOD PUT
+app.put("/user/:id", (req,res) => {
+    const {id} =  req.params
+    const {name} = req.body
+    const {umur} = req.body
+
+    let index = id - 1
+    dataDummy[index] = {
+        id: Number(id),
+        name,
+        umur
+    }
+
+    res.status(200).json({
+        msg : `id : ${id} update`
+    })
+})
+
+// MENGGUNAKAN METHOD DELETE
+app.delete("/user/:id", (req,res) => {
+    const {id} = req.params
+
+    let index = id - 1
+    dataDummy.splice(index, 1)
+
+    res.status(200).json({
+        msg : "data berhasil di hapus"
+    })
+    
+})
+
+app.listen(port, () => {
+    console.log(`server running di http://localhost:${port}`)
+})
