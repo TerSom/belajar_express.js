@@ -8,7 +8,7 @@ let users = [
     {
         id: 1,
         name: "terry",
-        role: "admin"
+        role: "student"
     }
 ]
 
@@ -16,20 +16,20 @@ let books = [
     {
         book_id : 1,
         buku_name : "perjuanga",
-        ISBN : 234242,
-        use : []
+        ISBN : "234242",
+        using : []
     },
     {
         book_id : 2,
         buku_name : "asdafags",
-        ISBN : 234242,
-        use : []
+        ISBN : "234242",
+        using : []
     },
     {
         book_id : 3,
         buku_name : "tasda",
-        ISBN : 234242,
-        use : []
+        ISBN : "234242",
+        using : []
     },
 ]
 
@@ -59,12 +59,12 @@ app.post("/user/login", (req,res) => {
 
     res.status(200).json({
         msg : `user berhasil login`,
-        users
+        users : users.at(-1)
     })
 })
 
-// SWITCH BUAT USER MILIH ADMIN DAN STUDENT
-app.post("/userSwitchRole/:id", (req,res) => {
+// SWITCH BUAT USER MILIH ADMIN ATAU STUDENT
+app.put("/userSwitchRole/:id", (req,res) => {
     const userId = parseInt(req.params.id)
     const {role} = req.body
     const iUser = users.findIndex(u => u.id === userId)
@@ -76,7 +76,7 @@ app.post("/userSwitchRole/:id", (req,res) => {
     })
 })
 
-// TAMBAH BUKU ROLE HARUS ADMIN
+// TAMBAH BUKU, ROLE HARUS ADMIN
 app.post('/createBook', (req,res) => {
     const role = users.map(r => r.role)
     const {buku_name} = req.body
@@ -86,7 +86,8 @@ app.post('/createBook', (req,res) => {
         books.push({
             book_id : books.length + 1,
             buku_name,
-            ISBN
+            ISBN,
+            using : []
         })
     
         res.status(201).json({
@@ -100,7 +101,7 @@ app.post('/createBook', (req,res) => {
     }
 })
 
-// EDIT BUKU ROLE HARUS ADMIN
+// EDIT BUKU, ROLE HARUS ADMIN
 app.put("/updateBook/:id" , (req,res) => {
     const bookId = parseInt(req.params.id)
     const role = users.map(r => r.role)
@@ -112,7 +113,8 @@ app.put("/updateBook/:id" , (req,res) => {
         books[iBook] = {
             id : parseInt(iBook + 1),
             buku_name,
-            ISBN
+            ISBN,
+            using : []
         }
     
         res.status(200).json({
@@ -126,7 +128,7 @@ app.put("/updateBook/:id" , (req,res) => {
     }
 })
 
-// DELETE BUKU ROLE ADMIN
+// DELETE BUKU, ROLE ADMIN
 app.delete('/deleteBook/:id' , (req,res) => {
     const bookId = req.params.id
     const role = users.map(r => r.role)
@@ -145,22 +147,23 @@ app.delete('/deleteBook/:id' , (req,res) => {
     }
 })
 
-// BORROW BUKU ROLE HARUS STUDENT
+// BORROW BUKU, ROLE HARUS STUDENT
 app.put('/borrowBook/:id', (req,res) => {
+    const {buku_name} = req.body
     const role = users.map(r => r.role)
     const userId = parseInt(req.params.id)
-    const {buku_name} = req.body
-    const iBook = books.findIndex(b => b.buku_name == buku_name)
+    const iBook = books.findIndex(b => b.buku_name === buku_name)
     const iUser = users.findIndex(u => u.id == userId)
     const user = users[iUser]
 
     if(role.toString() === "student"){
-        books[iBook].use.push({
-            use : user.name
+        books[iBook].using.push({
+            user : user.name
         })
     
         res.status(200).json({
             msg : "Buku berhasil di pinjam",
+            user
         })
     }else{
         return res.status(404).json({
